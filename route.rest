@@ -1,0 +1,55 @@
+GET http://localhost:3000/matchInfo/1679915281000
+
+###
+GET http://localhost:3000/matchInfo/getAll
+###
+POST http://localhost:3000/matchInfo
+Content-Type: application/json
+
+ {
+    "name": "BARVMAD",
+    "matchStartDate": "Mon, 27 Mar 2023 11:08:01 GMT",
+   "matchResult": null,
+    "matchEndDate": null
+ }
+### 
+POST http://localhost:3000/matchInfo
+Content-Type: application/json
+
+ { 
+   "matchFormat": "Round 1/8 World Cup",
+    "matchName":  "ENGVUSA",
+    "matchStartDate": "Mon, 1 June 2023 11:08:01 GMT",
+    "team1Name": "England",
+    "team2Name": "USA",
+    "matchBetWinProportion": "1.9",
+    "matchBetDrawProportion": "2",
+    "matchBetLoseProportion": "2.3",
+    "matchStatus": "0"
+ }
+
+###
+
+GET http://172.17.0.1:3000/match-result/644967d69586adefc8fea374
+####
+PUT http://localhost:3000/match-result/642ea8e946ad06750a613ca4
+Content-Type: application/json
+
+ {
+    
+    "matchResult": "BARVMAD-win",
+    "matchEndDate": "Tue, 28 Mar 2023 11:08:01 GMT",
+    "matchStatus": "2"
+ }
+ 
+####
+ TESTCONRACT
+###
+GET http://172.17.0.1:3000/match-result/645278adf16f2756be24b1a8
+###
+# PUT http://localhost:3000/matchInfo/642e8dbacbbf17106f361e48
+###
+GET http://localhost:3000/matchInfo/getNow
+####
+
+GET http://localhost:3000/matchInfo/getPast

@@ -1,0 +1,31 @@
+type = "directrequest"
+schemaVersion = 1
+name = "Get > String  - (TOML)"
+externalJobID = "9b7c48eb-a5ca-4867-bbb9-3c75f69a201c"
+forwardingAllowed = false
+maxTaskDuration = "0s"
+contractAddress = "0x91aDeC373f5d904147c81A1C268700700e962002"
+minContractPaymentLinkJuels = "0"
+observationSource = """
+    decode_log   [type="ethabidecodelog"
+                  abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)"
+                  data="$(jobRun.logData)"
+                  topics="$(jobRun.logTopics)"]
+
+    decode_cbor  [type="cborparse" data="$(decode_log.data)"]
+    fetch        [type="http" method=GET url="$(decode_cbor.get)" allowUnrestrictedNetworkAccess="true"]
+    parse_matchName        [type="jsonparse" path="$(decode_cbor.path_name)" data="$(fetch)"]
+    parse_matchResult        [type="jsonparse" path="$(decode_cbor.path_result)" data="$(fetch)"]
+    parse_matchContract        [type="jsonparse" path="$(decode_cbor.contract_address_match)" data="$(fetch)"]
+
+    encode_data  [type="ethabiencode" abi="(bytes32 _requestId, string calldata _match_name, address _match_contract, string calldata _results)" 
+                 data="{ \\"_requestId\\": $(decode_log.requestId), \\"_match_name\\": $(parse_matchName), \\"_match_contract\\": $(parse_matchContract), \\"_results\\": $(parse_matchResult) }"]
+    
+    encode_tx    [type="ethabiencode"
+                  abi="fulfillOracleRequest2(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes calldata data)"
+                  data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\":   $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"
+                  ]
+    submit_tx    [type="ethtx" to="0x91aDeC373f5d904147c81A1C268700700e962002" data="$(encode_tx)"]
+
+    decode_log -> decode_cbor -> fetch -> parse_matchName -> parse_matchResult -> parse_matchContract -> encode_data -> encode_tx -> submit_tx
+"""
